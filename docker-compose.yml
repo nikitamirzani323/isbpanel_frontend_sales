@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  isbpanel-frontend-sales:
+    container_name: isbpanel-frontend-sales
+    image: isbpanel-frontend-sales:0.0.1
+    build: .
+    volumes:
+    - ./frontend:/app/frontend
+    ports:
+      - 3012:3012
+    restart: always
