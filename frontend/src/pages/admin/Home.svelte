@@ -225,75 +225,10 @@
             alert(json.message)
         }
     }
-    async function EditData(e,x) {
-        if(e != ""){
-            admin_tipe = x;
-            sData = "Edit";
-            clearField();
-            isModalLoading = true;
-            isInput_username_enabled = false;
-            
-            admin_create_field = "";
-            admin_update_field = "";
-            const res = await fetch(path_api+"api/editadmin", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + token,
-                },
-                body: JSON.stringify({
-                    username: e,
-                }),
-            });
-            const json = await res.json();
-            let record = json.record;
-            let recordlistrule = json.listruleadmin;
-            let recordlistip = json.listip;
-            if (json.status === 400) {
-                dispatch("handleLogout", "call");
-            }else if(json.status === 200){
-                for (let i = 0; i < record.length; i++) {
-                    $form.admin_username_field = e;
-                    $form.admin_password_field = "";
-                    $form.admin_name_field = record[i]["admin_nama"];
-                    $form.admin_idrule_field = record[i]["admin_idrule"];
-                    $form.admin_status_field = record[i]["admin_status"];
-                    admin_create_field = record[i]["admin_create"];
-                    admin_update_field = record[i]["admin_update"];
-                }
-                if (recordlistrule != null) {
-                    for (let i = 0; i < recordlistrule.length; i++) {
-                        admin_listrule = [
-                            ...admin_listrule,
-                            {
-                                adminrule_idruleadmin:recordlistrule[i]["adminrule_idruleadmin"],
-                                adminrule_name: recordlistrule[i]["adminrule_name"],
-                            },
-                        ];
-                    }
-                }
-                if (recordlistip != null) {
-                    let no = 0;
-                    for (let i = 0; i < recordlistip.length; i++) {
-                        no = no + 1;
-                        admin_listip = [
-                            ...admin_listip,
-                            {
-                                adminiplist_no: no,
-                                adminiplist_idcompiplist:recordlistip[i]["adminiplist_idcompiplist"],
-                                adminiplist_iplist:recordlistip[i]["adminiplist_iplist"],
-                            },
-                        ];
-                    }
-                }
-                isModalLoading = false;
-                isModal_Form_New = true;
-            }else{
-                isModalLoading = false;
-                isModalNotif = true;
-                msg_error = "Silahkan Hubungi Administrator"
-            }
-        }
+    async function statusCRM(e) {
+        alert(e)
+        isModalLoading = false;
+        isModal_Form_New = true;
     }
     const RefreshHalaman = () => {
         dispatch("handleRefreshData", "call");
@@ -392,8 +327,13 @@
                         </td>
                         <td class="{font_size} align-top text-left">{rec.home_name}</td>
                         <td class="{font_size} align-top text-left">
-                            <span class="bg-[#ebfbee] text-[#6ec07b] text-center rounded-md p-1 px-2 cursor-pointer">VALID</span>
-                            <span class="bg-[#fde3e3] text-[#ea7779] text-center rounded-md p-1 px-2 cursor-pointer">INVALID</span>
+                            <span
+                                on:click={() => {
+                                    statusCRM("VALID");
+                                }} class="bg-[#ebfbee] text-[#6ec07b] text-center rounded-md p-1 px-2 cursor-pointer">VALID</span>
+                            <span on:click={() => {
+                                statusCRM("INVALID");
+                            }} class="bg-[#fde3e3] text-[#ea7779] text-center rounded-md p-1 px-2 cursor-pointer">INVALID</span>
                         </td>
                     </tr>
                     {/each}
@@ -415,168 +355,29 @@
 <input type="checkbox" id="my-modal-formnew" class="modal-toggle" bind:checked={isModal_Form_New}>
 <Modal_popup
     modal_popup_id="my-modal-formnew"
-    modal_popup_title="Entry/{sData}"
+    modal_popup_title=""
     modal_popup_class="select-none max-w-full lg:max-w-xl overflow-hidden">
     <slot:template slot="modalpopup_body">
-        {#if sData == "Edit" && admin_tipe == "ADMIN"}
-            <ul class="flex justify-center items-center gap-2">
-                <li on:click={() => {
-                        ChangeTabMenu("menu_1");
-                    }}
-                    class="items-center {tab_menu_1}  px-2 py-1.5 text-xs lg:text-sm cursor-pointer rounded-md outline outline-1 outline-offset-1 outline-sky-600">Edit</li>
-                <li on:click={() => {
-                        ChangeTabMenu("menu_2");
-                    }}
-                    class="items-center {tab_menu_2} px-2 py-1.5 text-xs lg:text-sm cursor-pointer rounded-md outline outline-1 outline-offset-1 outline-sky-600">List Ipaddress</li>
-            </ul>
-        {/if}
-        {#if panel_edit}
-            <div class="flex flex-auto flex-col overflow-auto gap-5 mt-2 ">
-                <div class="relative form-control mt-2">
-                    <Input_custom
-                        input_onchange="{handleChange}"
-                        input_autofocus={false}
-                        input_required={true}
-                        input_tipe="text"
-                        input_invalid={$errors.admin_username_field.length > 0}
-                        bind:value={$form.admin_username_field}
-                        input_id="admin_username_field"
-                        input_enabled={isInput_username_enabled}
-                        input_placeholder="Username"/>
-                    {#if $errors.admin_username_field}
-                        <small class="text-pink-600 text-[11px]">{$errors.admin_username_field}</small>
-                    {/if}
+        <div class="flex flex-col w-full gap-2">
+            <div class="flex justify-center gap-4 w-full">
+                <div class="w-24 p-5 border-4 border-[#ffffff] bg-[#f1f1f1] rounded-full shadow-lg cursor-pointer">
+                    <img width="60" class="" src="like.svg" alt="">
                 </div>
-                <div class="relative form-control">
-                    <Input_custom
-                        input_onchange="{handleChange}"
-                        input_autofocus={false}
-                        input_required={true}
-                        input_tipe="password"
-                        input_attr="password"
-                        input_invalid={$errors.admin_password_field.length > 0}
-                        bind:value={$form.admin_password_field}
-                        input_id="admin_password_field"
-                        input_placeholder="Password"/>
-                    {#if $errors.admin_password_field}
-                        <small class="text-pink-600 text-[11px]">{$errors.admin_password_field}</small>
-                    {/if}
+                <div class="w-24 p-5 border-4 border-[#ffffff] bg-[#f1f1f1] rounded-full shadow-lg cursor-pointer">
+                    <img width="60" class="" src="dislike.svg" alt="">
                 </div>
-                <div class="relative form-control">
-                    <select
-                        on:change="{handleChange}"
-                        bind:value={$form.admin_idrule_field}
-                        invalid={$errors.admin_idrule_field.length > 0} 
-                        class="w-full rounded px-3  border border-gray-300 focus:border-blue-700 focus:ring-1 focus:ring-blue-700 focus:outline-none input active:outline-none">
-                        <option disabled selected value="0">--Pilih Admin Rule--</option>
-                        {#each admin_listrule as rec}
-                        <option value="{rec.adminrule_idruleadmin}">{rec.adminrule_name}</option>
-                        {/each}
-                    </select>
-                    {#if $errors.admin_idrule_field}
-                        <small class="text-pink-600 text-[11px]">{$errors.admin_idrule_field}</small>
-                    {/if}
+                <div class="w-24 p-5 border-4 border-[#ffffff] bg-[#f1f1f1] rounded-full shadow-lg cursor-pointer">
+                    <img width="60" class="" src="reject.svg" alt="">
                 </div>
-                <div class="relative form-control">
-                    <Input_custom
-                        input_onchange="{handleChange}"
-                        input_autofocus={false}
-                        input_required={true}
-                        input_tipe="text"
-                        input_invalid={$errors.admin_name_field.length > 0}
-                        bind:value={$form.admin_name_field}
-                        input_id="admin_name_field"
-                        input_placeholder="Nama"/>
-                    {#if $errors.admin_name_field}
-                        <small class="text-pink-600 text-[11px]">{$errors.admin_name_field}</small>
-                    {/if}
+                <div class="w-24 p-5 border-4 border-[#ffffff] bg-[#f1f1f1] rounded-full shadow-lg cursor-pointer">
+                    <img width="60" class="" src="no-phone.svg" alt="">
                 </div>
-                <div class="relative form-control">
-                    <select
-                        on:change="{handleChange}"
-                        bind:value={$form.admin_status_field}
-                        invalid={$errors.admin_status_field.length > 0} 
-                        class="w-full rounded px-3  border border-gray-300 focus:border-blue-700 focus:ring-1 focus:ring-blue-700 focus:outline-none input active:outline-none">
-                        <option disabled selected value="">--Pilih Status--</option>
-                        <option value="ACTIVE">ACTIVE</option>
-                        <option value="BANNED">BANNED</option>
-                    </select>
-                    {#if $errors.admin_status_field}
-                        <small class="text-pink-600 text-[11px]">{$errors.admin_status_field}</small>
-                    {/if}
-                </div>
-                {#if sData == "Edit"}
-                <Panel_info>
-                    <slot:template slot="panel_body">
-                        <table>
-                            <tr>
-                                <td>Create</td>
-                                <td>:</td>
-                                <td>{admin_create_field}</td>
-                            </tr>
-                            {#if admin_update_field != ""}
-                            <tr>
-                                <td>Modified</td>
-                                <td>:</td>
-                                <td>{admin_update_field}</td>
-                            </tr>
-                            {/if}
-                        </table>
-                    </slot:template>
-                </Panel_info>
-                {/if}
             </div>
-            <div class="flex flex-wrap justify-end align-middle p-[0.75rem] mt-2">
-                <button
-                    on:click={() => {
-                        handleSubmit();
-                    }}  
-                    class="{buttonLoading_class}">Submit</button>
-            </div>
-        {/if}
-        {#if panel_iplist}
-            <div class="flex-auto h-[380px] overflow-auto mt-2 ">
-                <table class="table table-compact w-full">
-                    <thead>
-                        <tr>
-                            <th width="1%">&nbsp;</th>
-                            <th width="1%">NO</th>
-                            <th width="*">IPADDRESS</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {#if admin_listip != ""}
-                            {#each admin_listip as rec}
-                            <tr>
-                                <td on:click={() => {
-                                    deleteIpList(
-                                        rec.adminiplist_idcompiplist
-                                    );
-                                    }} class="cursor-pointer text-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </td>
-                                <td class="text-center">{rec.adminiplist_no}</td>
-                                <td class="text-left">{rec.adminiplist_iplist}</td>
-                            </tr>
-                            {/each}
-                        {:else}
-                            <tr>
-                                <td colspan="3" class="text-left text-xs font-semibold">No Record</td>
-                            </tr>
-                        {/if}
-                    </tbody>
-                </table>
-            </div>
-            <div class="flex flex-wrap justify-end align-middle p-[0.75rem] mt-2">
-                <button
-                    on:click={() => {
-                        handleNewListIp();
-                    }}  
-                    class="btn btn-primary ">New</button>
-            </div>
-        {/if}
+            <textarea class="textarea textarea-bordered" placeholder="Note"></textarea>
+            <button class="btn btn-primary">Update</button>
+        </div>
+        
+        
     </slot:template>
 </Modal_popup>
 
