@@ -1,7 +1,5 @@
 <script>
     import { createEventDispatcher } from "svelte";
-    import { createForm } from "svelte-forms-lib";
-    import * as yup from "yup";
     import Input_custom from '../../components/Input.svelte' 
     import Modal_alert from '../../components/Modal_alert.svelte' 
     import Modal_popup from '../../components/Modal_popup.svelte' 
@@ -13,13 +11,12 @@
     export let font_size = "";
     export let token = "";
     export let listHome = [];
-    export let admin_listrule = [];
+    export let listwebsiteagen = [];
     export let totalrecord = 0;
 
     let page = "CRM PROCESS";
     let sData = "New";
     let isModal_Form_New = false
-    let isModal_Form_Listipaddress = false
     let isModalLoading = false
     let isModalNotif = false
     let loader_class = "hidden"
@@ -29,6 +26,12 @@
 
     let status_crm_satu = "";
     let status_crm_dua = "";
+    let phone_field = "";
+    let note_field = "";
+    let idusersales_field = 0
+    let idcrmsales_field = 0
+    let website_field = "0"
+    let deposit_field = 0
     let img_deposit = "deposit.png"
     let img_reject = "reject.svg"
     let img_noanswer = "no-phone.svg"
@@ -36,88 +39,33 @@
     let panel_deposit = false
     let panel_reject = false
     let panel_noanswer = false
-    let website_field = ""
-    let deposit_field = 0
+    
 
-    let admin_listip = [];
-    let tab_menu_1 = "bg-sky-600 text-white"
-    let tab_menu_2 = ""
-    let panel_edit = true
-    let panel_iplist = false
-    let admin_tipe = "ADMIN";
+  
     let searchHome = "";
     let filterHome = [];
-    let form_field_ipaddress = "";
-    let isInput_username_enabled = true;
-    let admin_create_field = ""
-    let admin_update_field = ""
     let dispatch = createEventDispatcher();
-    const schema = yup.object().shape({
-        admin_username_field: yup
-            .string()
-            .required("Username is Required")
-            .matches(
-                /^[a-zA-z0-9]+$/,
-                "Username must Character A-Z or a-z or 1-9"
-            )
-            .min(4, "Username must be at least 4 Character")
-            .max(20, "Username must be at most 20 Character"),
-        admin_password_field: yup.string(),
-        admin_name_field: yup
-            .string()
-            .required("Nama is Required")
-            .matches(
-                /^[a-zA-z0-9]+$/,
-                "Nama must Character A-Z or a-z or 1-9"
-            )
-            .min(4, "Nama must be at least 4 Character")
-            .max(20, "Nama must be at most 20 Character"),
-        admin_idrule_field: yup.number().required("Admin Rule is Required"),
-        admin_status_field: yup.string().required("Status is Required"),
-    });
-    const { form, errors, handleChange, handleSubmit } = createForm({
-        initialValues: {
-            admin_username_field: "",
-            admin_password_field: "",
-            admin_name_field: "",
-            admin_idrule_field: "0",
-            admin_status_field: "",
-        },
-        validationSchema: schema,
-        onSubmit: (values) => {
-            SaveTransaksi(
-                values.admin_username_field,
-                values.admin_password_field,
-                values.admin_name_field,
-                values.admin_idrule_field,
-                values.admin_status_field
-            );
-        },
-    });
-    async function SaveTransaksi(username, password, name, rule,status) {
+   
+    async function SaveTransaksi() {
         let flag = true;
         msg_error = "";
-        const regexExp = /^[a-zA-z0-9]+$/gi;
-        let flag_password = regexExp.test(password)
-        if(password != ""){
-            if(!flag_password){
-                flag = false;
-                msg_error += "The Format Password invalid\n Password must Character A-Z or a-z or 1-9";
-            }
+        if(parseInt(idusersales_field) < 1){
+            flag = true;
+            msg_error += "The User Sales is required<br>";
         }
-        if (rule == "0") {
-            flag = false;
-            msg_error += "The Admin Rule is required";
+        if(parseInt(idcrmsales_field) < 1){
+            flag = true;
+            msg_error += "The CRM Sales is required<br>";
         }
-        if(status == ""){
-            flag = false;
-            msg_error += "The Status is required";
+        if(status_crm_satu == ""){
+            flag = true;
+            msg_error += "The Status is required<br>";
         }
         if (flag) {
             buttonLoading_class = "btn loading"
             loader_class = "inline-block"
             loader_msg = "Sending..."
-            const res = await fetch(path_api+"api/saveadmin", {
+            const res = await fetch(path_api+"api/salessave", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -125,12 +73,15 @@
                 },
                 body: JSON.stringify({
                     sdata: sData,
-                    idruleadmin: parseInt(rule),
                     page: "ADMIN-SAVE",
-                    username: username,
-                    password: password,
-                    nama: name,
-                    status: status,
+                    crm_idusersales: parseInt(idusersales_field),
+                    crm_idcrmsales: parseInt(idcrmsales_field),
+                    crm_idcwebagen: parseInt(website_field),
+                    crm_status: status_crm_satu,
+                    crm_status_dua: status_crm_dua,
+                    crm_note: note_field,
+                    crm_phone: phone_field,
+                    crm_deposit: parseInt(deposit_field),
                 }),
             });
             const json = await res.json();
@@ -142,13 +93,7 @@
             }else{
                 if (json.status == 200) {
                     loader_msg = json.message
-                    if(sData == "New"){
-                        $form.admin_username_field = "";
-                        $form.admin_password_field = "";
-                        $form.admin_name_field = "";
-                        $form.admin_idrule_field = "0";
-                        $form.admin_status_field = "";
-                    }
+                    clearField()
                 } else if (json.status == 403) {
                     loader_msg = json.message
                 } else {
@@ -160,89 +105,23 @@
                 }, 1000);
                 RefreshHalaman();
             }
+            isModalLoading = false;
+            isModal_Form_New = false;
         } else {
             alert(msg_error);
         }
     }
-    async function SaveIpaddress() {
-        let flag = true;
-        let totaliplist = admin_listip.length;
-        msg_error = "";
-        if (form_field_ipaddress == "") {
-            flag = false;
-            msg_error += "The Ipaddress is required\n";
-        }
-        const regexExp = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/gi;
-        let flag_ip = regexExp.test(form_field_ipaddress)
-        if(!flag_ip){
-            flag = false;
-            msg_error += "The Format Ipaddress invalid\n";
-        }
-        if(totaliplist > 5){
-            flag = false;
-            msg_error += "Maximal 5 Ipaddress Active\n";
-        }
-        if (flag) {
-            buttonLoading_class = "btn loading"
-            loader_class = "inline-block"
-            loader_msg = "Sending..."
-            const res = await fetch(path_api+"api/saveadminiplist", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + token,
-                },
-                body: JSON.stringify({
-                    sData: "New",
-                    page: "ADMIN-SAVE",
-                    username: $form.admin_username_field,
-                    ipaddress: form_field_ipaddress,
-                }),
-            });
-            const json = await res.json();
-            if (json.status == 200) {
-                loader_msg = json.message
-                EditData($form.admin_username_field)
-                form_field_ipaddress = "";
-            } else if (json.status == 403) {
-                loader_msg = json.message
-            } else {
-                loader_msg = json.message;
-            }
-            buttonLoading_class = "btn btn-primary"
-            setTimeout(function () {
-                loader_class = "hidden";
-            }, 1000);
-        } else {
-            alert(msg_error);
-        }
-    }
-    async function deleteIpList(e) {
-        const res = await fetch(path_api+"api/deleteadminiplist", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + token,
-            },
-            body: JSON.stringify({
-                idcompiplist: parseInt(e),
-                username: $form.admin_username_field,
-                page:"ADMIN-SAVE",
-            }),
-        });
-        const json = await res.json();
-        if (json.status == 200) {
-            admin_listip = [];
-            EditData($form.admin_username_field)
-        }else if(json.status == 403){
-            alert(json.message)
-        }
-    }
-    async function statusCRM(e) {
+    
+    async function statusCRM(e,idcrmsales,idusersales,phone) {
         status_crm_satu = e
+        phone_field = phone;
+        idusersales_field = parseInt(idusersales)
+        idcrmsales_field = parseInt(idcrmsales)
         if(e == "VALID"){
             isModalLoading = false;
             isModal_Form_New = true;
+        }else{
+            SaveTransaksi()
         }
     }
     async function statusCRMVALID(e) {
@@ -281,26 +160,19 @@
         dispatch("handleRefreshData", "call");
     };
     const NewData = () => {
-        sData = "New";
-        isInput_username_enabled = true;
-        clearField()
-        isModal_Form_New = true;
+        
     };
-    const handleNewListIp = () => {
-        isModal_Form_Listipaddress = true;
-    }
+   
    
     function clearField(){
-        if(sData == "Edit"){
-            admin_listrule = []
-            admin_listip = []
-        } 
-        $form.admin_username_field = "";
-        $form.admin_password_field = "";
-        $form.admin_name_field = "";
-        $form.admin_idrule_field = "0";
-        $form.admin_status_field = "";
-        form_field_ipaddress = "";
+        status_crm_satu = "";
+        status_crm_dua = "";
+        phone_field = "";
+        note_field = "";
+        idusersales_field = 0
+        idcrmsales_field = 0
+        website_field = "0"
+        deposit_field = 0
     }
     
     $: {
@@ -366,10 +238,10 @@
                         <td class="{font_size} align-top text-left">
                             <span
                                 on:click={() => {
-                                    statusCRM("VALID");
+                                    statusCRM("VALID",rec.home_idcrmsales,rec.home_idusersales,rec.home_phone);
                                 }} class="bg-[#ebfbee] text-[#6ec07b] text-center rounded-md p-1 px-2 cursor-pointer">VALID</span>
                             <span on:click={() => {
-                                statusCRM("INVALID");
+                                statusCRM("INVALID",rec.home_idcrmsales,rec.home_idusersales,rec.home_phone);
                             }} class="bg-[#fde3e3] text-[#ea7779] text-center rounded-md p-1 px-2 cursor-pointer">INVALID</span>
                         </td>
                     </tr>
@@ -433,9 +305,10 @@
                     <select
                         bind:value={website_field}
                         class="select select-bordered select-sm rounded-sm w-full focus:ring-0 focus:outline-none mb-2">
-                        <option value="">--Pilih Website Agen--</option>
-                        <option value="">ISB388</option>
-                        <option value="">INDOSUPERBET</option>
+                        <option value="0">--Pilih Website Agen--</option>
+                        {#each listwebsiteagen as rec}
+                            <option value="{rec.websiteagen_id}">{rec.websiteagen_name}</option>
+                        {/each}
                     </select>
                 </div>
                 <div class="relative form-control mt-2">
@@ -446,15 +319,27 @@
                         input_id="deposit_field"
                         input_placeholder="Deposit"/>
                 </div>
-                <button class="btn btn-primary">Update</button>
+                <button
+                    on:click={() => {
+                        SaveTransaksi();
+                    }} 
+                    class="btn btn-primary">Update</button>
             {/if}
             {#if panel_reject}
-                <textarea class="textarea textarea-bordered" placeholder="Note"></textarea>
-                <button class="btn btn-primary">Update</button>
+                <textarea 
+                    bind:value={note_field}
+                    class="textarea textarea-bordered" placeholder="Note"></textarea>
+                <button on:click={() => {
+                    SaveTransaksi();
+                }} class="btn btn-primary">Update</button>
             {/if}
             {#if panel_noanswer}
-                <textarea class="textarea textarea-bordered" placeholder="Note"></textarea>
-                <button class="btn btn-primary">Update</button>
+                <textarea
+                    bind:value={note_field} 
+                    class="textarea textarea-bordered" placeholder="Note"></textarea>
+                <button on:click={() => {
+                    SaveTransaksi();
+                }} class="btn btn-primary">Update</button>
             {/if}
         </div>
         

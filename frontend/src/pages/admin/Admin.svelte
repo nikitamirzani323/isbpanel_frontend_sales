@@ -1,13 +1,13 @@
 <script>
-    import Home from "../admin/Home.svelte";
+    import Home from "./Home.svelte";
     export let path_api = ""
     export let font_size = "";
     let listHome = [];
+    let listwebsiteagen = [];
     let record = "";
     let totalrecord = 0;
     let token = localStorage.getItem("token");
     let akses_page = true;
-    let admin_listrule = [];
   
     async function initHome() {
         const res = await fetch(path_api+"api/sales", {
@@ -24,18 +24,11 @@
             record = json.record;
             totalrecord = record.length;
             let no = 0
-            let recordlistrule = json.listruleadmin;
-            let status_class = "";
             let temp_phone = "";
             let temp_xxx = 0;
             let temp_alias = ""
             if (record != null) {
                 for (var i = 0; i < record.length; i++) {
-                    if (record[i]["admin_status"] == "ACTIVE") {
-                        status_class = "bg-[#ebfbee] text-[#6ec07b]"
-                    } else {
-                        status_class = "bg-[#fde3e3] text-[#ea7779]"
-                    }
                     temp_phone = record[i]["crm_phone"];
                     temp_xxx = temp_phone.length - 5;
                     temp_alias = ""
@@ -62,20 +55,36 @@
                     ];
                 }
             }
-            if (recordlistrule != null) {
-                for (let i = 0; i < recordlistrule.length; i++) {
-                    admin_listrule = [
-                        ...admin_listrule,
+        } else {
+            logout();
+        }
+    }
+    async function initWebsiteAgen() {
+        listwebsiteagen = [];
+        const res = await fetch(path_api+"api/websiteagen", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({
+            }),
+        });
+        const json = await res.json();
+        if (json.status == 200) {
+            record = json.record;
+            totalrecord = record.length;
+            if (record != null) {
+                for (var i = 0; i < record.length; i++) {
+                    listwebsiteagen = [
+                        ...listwebsiteagen,
                         {
-                            adminrule_idruleadmin:
-                                recordlistrule[i]["adminrule_idruleadmin"],
-                            adminrule_name: recordlistrule[i]["adminrule_name"],
+                            websiteagen_id: record[i]["websiteagen_id"],
+                            websiteagen_name: record[i]["websiteagen_name"],
                         },
                     ];
                 }
             }
-        } else {
-            logout();
         }
     }
     async function logout() {
@@ -84,7 +93,7 @@
     }
     const handleRefreshData = (e) => {
         listHome = [];
-        admin_listrule = [];
+        listwebsiteagen = [];
         totalrecord = 0;
         setTimeout(function () {
             initHome();
@@ -94,6 +103,7 @@
         logout()
     }
     initHome();
+    initWebsiteAgen();
 </script>
 {#if akses_page == true}
     <Home
@@ -102,7 +112,7 @@
         {path_api}
         {font_size}
         {token}
-        {admin_listrule}
         {listHome}
+        {listwebsiteagen}
         {totalrecord}/>
 {/if}

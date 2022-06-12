@@ -6,11 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/go-resty/resty/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/nikitamirzani323/isbpanel_frontend_sales/config"
-	"github.com/nikitamirzani323/isbpanel_frontend_sales/helpers"
 )
 
 type home struct {
@@ -32,14 +30,13 @@ type response_loginhome struct {
 
 func Login(c *fiber.Ctx) error {
 	type payload_login struct {
-		Username  string `json:"username" validate:"required"`
-		Password  string `json:"password" validate:"required"`
-		Ipaddress string `json:"ipaddress" validate:"required"`
-		Timezone  string `json:"timezone" validate:"required"`
+		Username  string `json:"username" `
+		Password  string `json:"password" `
+		Ipaddress string `json:"ipaddress" `
+		Timezone  string `json:"timezone" `
 	}
-	var errors []*helpers.ErrorResponse
+
 	client := new(payload_login)
-	validate := validator.New()
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -49,21 +46,6 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	err := validate.Struct(client)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
-		})
-	}
 	render_page := time.Now()
 	axios := resty.New()
 	resp, err := axios.R().
@@ -112,9 +94,7 @@ func Login(c *fiber.Ctx) error {
 
 }
 func Home(c *fiber.Ctx) error {
-	var errors []*helpers.ErrorResponse
 	client := new(home)
-	validate := validator.New()
 	if err := c.BodyParser(client); err != nil {
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(fiber.Map{
@@ -123,21 +103,7 @@ func Home(c *fiber.Ctx) error {
 			"record":  nil,
 		})
 	}
-	err := validate.Struct(client)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element helpers.ErrorResponse
-			element.Field = err.StructField()
-			element.Tag = err.Tag()
-			errors = append(errors, &element)
-		}
-		c.Status(fiber.StatusBadRequest)
-		return c.JSON(fiber.Map{
-			"status":  fiber.StatusBadRequest,
-			"message": "validation",
-			"record":  errors,
-		})
-	}
+
 	bearToken := c.Get("Authorization")
 	token := strings.Split(bearToken, " ")
 	render_page := time.Now()

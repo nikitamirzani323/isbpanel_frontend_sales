@@ -38,5 +38,7 @@ func Init() *fiber.App {
 	app.Post("/api/home", controller.Home)
 
 	app.Post("/api/sales", controller.Sales)
+	app.Post("/api/salessave", controller.Salessve)
+	app.Post("/api/websiteagen", controller.Websiteagen)
 	return app
 }
