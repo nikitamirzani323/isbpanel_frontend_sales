@@ -26,6 +26,19 @@
     let loader_msg = "Sending..."
     let buttonLoading_class = "btn btn-primary"
     let msg_error = "";
+
+    let status_crm_satu = "";
+    let status_crm_dua = "";
+    let img_deposit = "deposit.png"
+    let img_reject = "reject.svg"
+    let img_noanswer = "no-phone.svg"
+    let img_check = "check.svg"
+    let panel_deposit = false
+    let panel_reject = false
+    let panel_noanswer = false
+    let website_field = ""
+    let deposit_field = 0
+
     let admin_listip = [];
     let tab_menu_1 = "bg-sky-600 text-white"
     let tab_menu_2 = ""
@@ -226,9 +239,43 @@
         }
     }
     async function statusCRM(e) {
-        alert(e)
-        isModalLoading = false;
-        isModal_Form_New = true;
+        status_crm_satu = e
+        if(e == "VALID"){
+            isModalLoading = false;
+            isModal_Form_New = true;
+        }
+    }
+    async function statusCRMVALID(e) {
+        switch(e){
+            case "DEPOSIT":
+                status_crm_dua = "DEPOSIT"
+                img_deposit = img_check
+                img_reject = "reject.svg"
+                img_noanswer = "no-phone.svg"
+                panel_deposit = true
+                panel_reject = false
+                panel_noanswer = false
+                break;
+            case "REJECT":
+                status_crm_dua = "REJECT"
+                img_deposit = "deposit.png"
+                img_reject = img_check
+                img_noanswer = "no-phone.svg"
+                panel_deposit = false
+                panel_reject = true
+                panel_noanswer = false
+                break;
+            case "NOANSWER":
+                status_crm_dua = "NOANSWER"
+                img_deposit = "deposit.png"
+                img_reject = "reject.svg"
+                img_noanswer = img_check
+                panel_deposit = false
+                panel_reject = false
+                panel_noanswer = true
+                break;
+        }
+        
     }
     const RefreshHalaman = () => {
         dispatch("handleRefreshData", "call");
@@ -242,19 +289,7 @@
     const handleNewListIp = () => {
         isModal_Form_Listipaddress = true;
     }
-    const ChangeTabMenu = (e) => {
-        if(e == "menu_2"){
-            tab_menu_1 = ""
-            tab_menu_2 = "bg-sky-600 text-white"
-            panel_edit = false
-            panel_iplist = true
-        }else{
-            tab_menu_1 = "bg-sky-600 text-white"
-            tab_menu_2 = ""
-            panel_edit = true
-            panel_iplist = false
-        }
-    }
+   
     function clearField(){
         if(sData == "Edit"){
             admin_listrule = []
@@ -286,6 +321,8 @@
             filterHome = [...listHome];
         }
     }
+
+    
 </script>
 <Loader loader_class="{loader_class}" loader_msg="{loader_msg}" />
 
@@ -359,54 +396,73 @@
     modal_popup_class="select-none max-w-full lg:max-w-xl overflow-hidden">
     <slot:template slot="modalpopup_body">
         <div class="flex flex-col w-full gap-2">
-            <div class="flex justify-center gap-4 w-full">
-                <div class="w-24 p-5 border-4 border-[#ffffff] bg-[#f1f1f1] rounded-full shadow-lg cursor-pointer">
-                    <img width="60" class="" src="like.svg" alt="">
+            <div class="flex justify-center gap-10 w-full">
+                <div
+                    on:click={() => {
+                        statusCRMVALID("DEPOSIT");
+                    }} 
+                    class="flex flex-col justify-items-center text-center">
+                    <div class="w-24 p-5 border-4 border-[#ffffff] bg-[#f1f1f1] rounded-full shadow-lg cursor-pointer">
+                        <img width="60" class="" src="{img_deposit}" alt="">
+                    </div>  
+                    <span class="font-bold text-sm">DEPOSIT</span>
                 </div>
-                <div class="w-24 p-5 border-4 border-[#ffffff] bg-[#f1f1f1] rounded-full shadow-lg cursor-pointer">
-                    <img width="60" class="" src="dislike.svg" alt="">
+                <div
+                    on:click={() => {
+                        statusCRMVALID("REJECT");
+                    }} 
+                    class="flex flex-col justify-items-center text-center">
+                    <div class="w-24 p-5 border-4 border-[#ffffff] bg-[#f1f1f1] rounded-full shadow-lg cursor-pointer">
+                        <img width="60" class="" src="{img_reject}" alt="">
+                    </div>  
+                    <span class="font-bold text-sm">REJECT</span>
                 </div>
-                <div class="w-24 p-5 border-4 border-[#ffffff] bg-[#f1f1f1] rounded-full shadow-lg cursor-pointer">
-                    <img width="60" class="" src="reject.svg" alt="">
-                </div>
-                <div class="w-24 p-5 border-4 border-[#ffffff] bg-[#f1f1f1] rounded-full shadow-lg cursor-pointer">
-                    <img width="60" class="" src="no-phone.svg" alt="">
+                <div
+                    on:click={() => {
+                        statusCRMVALID("NOANSWER");
+                    }} 
+                    class="flex flex-col justify-items-center text-center">
+                    <div class="w-24 p-5 border-4 border-[#ffffff] bg-[#f1f1f1] rounded-full shadow-lg cursor-pointer">
+                        <img width="60" class="" src="{img_noanswer}" alt="">
+                    </div>  
+                    <span class="font-bold text-sm">NO ANSWER</span>
                 </div>
             </div>
-            <textarea class="textarea textarea-bordered" placeholder="Note"></textarea>
-            <button class="btn btn-primary">Update</button>
+            {#if panel_deposit}
+                <div class="relative form-control mt-2">
+                    <select
+                        bind:value={website_field}
+                        class="select select-bordered select-sm rounded-sm w-full focus:ring-0 focus:outline-none mb-2">
+                        <option value="">--Pilih Website Agen--</option>
+                        <option value="">ISB388</option>
+                        <option value="">INDOSUPERBET</option>
+                    </select>
+                </div>
+                <div class="relative form-control mt-2">
+                    <Input_custom
+                        input_enabled={true}
+                        input_tipe="number"
+                        bind:value={deposit_field}
+                        input_id="deposit_field"
+                        input_placeholder="Deposit"/>
+                </div>
+                <button class="btn btn-primary">Update</button>
+            {/if}
+            {#if panel_reject}
+                <textarea class="textarea textarea-bordered" placeholder="Note"></textarea>
+                <button class="btn btn-primary">Update</button>
+            {/if}
+            {#if panel_noanswer}
+                <textarea class="textarea textarea-bordered" placeholder="Note"></textarea>
+                <button class="btn btn-primary">Update</button>
+            {/if}
         </div>
         
         
     </slot:template>
 </Modal_popup>
 
-<input type="checkbox" id="my-modal-formipaddress" class="modal-toggle" bind:checked={isModal_Form_Listipaddress}>
-<Modal_popup
-    modal_popup_id="my-modal-formipaddress"
-    modal_popup_title="New IPAddress"
-    modal_popup_class="select-none max-w-full lg:max-w-xl overflow-hidden">
-    <slot:template slot="modalpopup_body">
-        <div class="flex flex-auto flex-col overflow-auto gap-5 mt-2 ">
-            <div class="mt-2">
-                <Input_custom
-                    input_autofocus={false}
-                    input_required={true}
-                    input_tipe="text"
-                    bind:value={form_field_ipaddress}
-                    input_id="ipaddress"
-                    input_placeholder="IPAddress"/>
-            </div>
-        </div>
-        <div class="flex flex-wrap justify-end align-middle p-[0.75rem] mt-2">
-            <button
-                on:click={() => {
-                    SaveIpaddress();
-                }}  
-                class="{buttonLoading_class}">Submit</button>
-        </div>
-    </slot:template>
-</Modal_popup>
+
 
 <input type="checkbox" id="my-modal-notif" class="modal-toggle" bind:checked={isModalNotif}>
 <Modal_alert 
