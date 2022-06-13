@@ -51,16 +51,30 @@
         let flag = true;
         msg_error = "";
         if(parseInt(idusersales_field) < 1){
-            flag = true;
+            flag = false;
             msg_error += "The User Sales is required<br>";
         }
         if(parseInt(idcrmsales_field) < 1){
-            flag = true;
+            flag = false;
             msg_error += "The CRM Sales is required<br>";
         }
         if(status_crm_satu == ""){
-            flag = true;
+            flag = false;
             msg_error += "The Status is required<br>";
+        }
+        if(status_crm_dua == "DEPOSIT"){
+            if(parseInt(website_field) < 1){
+                flag = false;
+                msg_error += "The The Website Agen is required<br>";
+            }
+            if(parseInt(deposit_field) < 1){
+                flag = false;
+                msg_error += "The The Deposit is required<br>";
+            }
+            if(iduseragen_field == ""){
+                flag = false;
+                msg_error += "The ID User Agen is required<br>";
+            }
         }
         if (flag) {
             buttonLoading_class = "btn loading"
