@@ -31,6 +31,7 @@
     let idusersales_field = 0
     let idcrmsales_field = 0
     let website_field = "0"
+    let iduseragen_field = ""
     let deposit_field = 0
     let img_deposit = "deposit.png"
     let img_reject = "reject.svg"
@@ -80,6 +81,7 @@
                     crm_status: status_crm_satu,
                     crm_status_dua: status_crm_dua,
                     crm_note: note_field,
+                    crm_iduseragen: iduseragen_field,
                     crm_phone: phone_field,
                     crm_deposit: parseInt(deposit_field),
                 }),
@@ -113,10 +115,13 @@
     }
     
     async function statusCRM(e,idcrmsales,idusersales,phone) {
+        resetstatus()
         status_crm_satu = e
         phone_field = phone;
         idusersales_field = parseInt(idusersales)
         idcrmsales_field = parseInt(idcrmsales)
+
+        
         if(e == "VALID"){
             isModalLoading = false;
             isModal_Form_New = true;
@@ -163,7 +168,18 @@
         
     };
    
-   
+    function resetstatus(){
+        status_crm_satu = ""
+        phone_field = "";
+        idusersales_field = 0
+        idcrmsales_field = 0
+        img_deposit = "deposit.png"
+        img_reject = "reject.svg"
+        img_noanswer = "no-phone.svg"
+        panel_deposit = false
+        panel_reject = false
+        panel_noanswer = false
+    }
     function clearField(){
         status_crm_satu = "";
         status_crm_dua = "";
@@ -172,6 +188,7 @@
         idusersales_field = 0
         idcrmsales_field = 0
         website_field = "0"
+        iduseragen_field = ""
         deposit_field = 0
     }
     
@@ -310,6 +327,15 @@
                             <option value="{rec.websiteagen_id}">{rec.websiteagen_name}</option>
                         {/each}
                     </select>
+                </div>
+                <div class="relative form-control mt-2">
+                    <Input_custom
+                        input_autofocus={false}
+                        input_required={true}
+                        input_tipe="text"
+                        bind:value={iduseragen_field}
+                        input_id="iduseragen_field"
+                        input_placeholder="ID User Agen"/>
                 </div>
                 <div class="relative form-control mt-2">
                     <Input_custom

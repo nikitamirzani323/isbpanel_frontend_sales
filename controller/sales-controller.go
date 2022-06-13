@@ -81,6 +81,7 @@ func Salessve(c *fiber.Ctx) error {
 		Crm_status      string `json:"crm_status" `
 		Crm_status_dua  string `json:"crm_status_dua" `
 		Crm_note        string `json:"crm_note" `
+		Crm_iduseragen  string `json:"crm_iduseragen" `
 		Crm_phone       string `json:"crm_phone" `
 		Crm_deposit     int    `json:"crm_deposit" `
 	}
@@ -128,6 +129,7 @@ func Salessve(c *fiber.Ctx) error {
 			"crm_status":      client.Crm_status,
 			"crm_status_dua":  client.Crm_status_dua,
 			"crm_note":        client.Crm_note,
+			"crm_iduseragen":  client.Crm_iduseragen,
 			"crm_phone":       client.Crm_phone,
 			"crm_deposit":     client.Crm_deposit,
 		}).
