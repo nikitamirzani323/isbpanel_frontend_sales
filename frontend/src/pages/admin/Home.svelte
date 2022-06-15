@@ -26,6 +26,8 @@
 
     let status_crm_satu = "";
     let status_crm_dua = "";
+    let nama_field = "";
+    let phonealias_field = "";
     let phone_field = "";
     let note_field = "";
     let idusersales_field = 0
@@ -128,13 +130,14 @@
         }
     }
     
-    async function statusCRM(e,idcrmsales,idusersales,phone) {
+    async function statusCRM(e,idcrmsales,idusersales,phone, nama,phonealias) {
         resetstatus()
         status_crm_satu = e
         phone_field = phone;
         idusersales_field = parseInt(idusersales)
         idcrmsales_field = parseInt(idcrmsales)
-
+        nama_field = nama
+        phonealias_field = phonealias
         
         if(e == "VALID"){
             isModalLoading = false;
@@ -239,8 +242,7 @@
     <slot:template slot="panel_body">
         <div class="tabs tabs-boxed">
             <a class="tab tab-active">PROCESS</a> 
-            <a class="tab">VALID</a> 
-            <a class="tab">INVALID</a> 
+            <a class="tab">MAINTENANCE</a> 
         </div>
         <table class="table table-compact w-full mt-4">
             <thead class="sticky top-0">
@@ -269,10 +271,10 @@
                         <td class="{font_size} align-top text-left">
                             <span
                                 on:click={() => {
-                                    statusCRM("VALID",rec.home_idcrmsales,rec.home_idusersales,rec.home_phone);
+                                    statusCRM("VALID",rec.home_idcrmsales,rec.home_idusersales,rec.home_phone,rec.home_name,rec.home_phonealias);
                                 }} class="bg-[#ebfbee] text-[#6ec07b] text-center rounded-md p-1 px-2 cursor-pointer">VALID</span>
                             <span on:click={() => {
-                                statusCRM("INVALID",rec.home_idcrmsales,rec.home_idusersales,rec.home_phone);
+                                statusCRM("INVALID",rec.home_idcrmsales,rec.home_idusersales,rec.home_phone,rec.home_name,rec.home_phonealias);
                             }} class="bg-[#fde3e3] text-[#ea7779] text-center rounded-md p-1 px-2 cursor-pointer">INVALID</span>
                         </td>
                     </tr>
@@ -299,6 +301,23 @@
     modal_popup_class="select-none max-w-full lg:max-w-xl overflow-hidden">
     <slot:template slot="modalpopup_body">
         <div class="flex flex-col w-full gap-2">
+            <div class="alert alert-info mt-2 rounded-sm w-full">
+                <table class="w-full">
+                   <tbody>
+                        <tr>
+                            <td class="text-lg text-white w-[20%]">NAME</td>
+                            <td class="text-lg text-white w-[1%]">:</td>
+                            <td class="text-lg text-white w-[*]">{nama_field}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-lg text-white">PHONE</td>
+                            <td class="text-lg text-white">:</td>
+                            <td class="text-lg text-white">{phonealias_field}</td>
+                        </tr>
+                   </tbody>
+                </table>
+              </div>
+            
             <div class="flex justify-center gap-10 w-full">
                 <div
                     on:click={() => {

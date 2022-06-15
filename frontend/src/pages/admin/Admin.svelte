@@ -97,6 +97,7 @@
         totalrecord = 0;
         setTimeout(function () {
             initHome();
+            initWebsiteAgen();
         }, 1000);
     };
     const handleLogout = (e) => {
