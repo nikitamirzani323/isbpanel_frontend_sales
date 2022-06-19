@@ -25,6 +25,35 @@ type response_adminsave struct {
 }
 
 func Sales(c *fiber.Ctx) error {
+	type payload_fetch struct {
+		Crm_status string `json:"crm_status" `
+	}
+	var errors []*helpers.ErrorResponse
+	client := new(payload_fetch)
+	validate := validator.New()
+	if err := c.BodyParser(client); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"status":  fiber.StatusBadRequest,
+			"message": err.Error(),
+			"record":  nil,
+		})
+	}
+	err := validate.Struct(client)
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			var element helpers.ErrorResponse
+			element.Field = err.StructField()
+			element.Tag = err.Tag()
+			errors = append(errors, &element)
+		}
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"status":  fiber.StatusBadRequest,
+			"message": "validation",
+			"record":  errors,
+		})
+	}
 	render_page := time.Now()
 	bearToken := c.Get("Authorization")
 	token := strings.Split(bearToken, " ")
@@ -36,7 +65,7 @@ func Sales(c *fiber.Ctx) error {
 		SetHeader("Content-Type", "application/json").
 		SetBody(map[string]interface{}{
 			"crm_page":   0,
-			"crm_status": "PROCESS",
+			"crm_status": client.Crm_status,
 		}).
 		Post(config.GetPathAPI() + "api/crm")
 	if err != nil {

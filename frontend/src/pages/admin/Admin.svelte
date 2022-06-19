@@ -9,7 +9,7 @@
     let token = localStorage.getItem("token");
     let akses_page = true;
   
-    async function initHome() {
+    async function initHome(e) {
         const res = await fetch(path_api+"api/sales", {
             method: "POST",
             headers: {
@@ -17,6 +17,7 @@
                 Authorization: "Bearer " + token,
             },
             body: JSON.stringify({
+                crm_status:e
             }),
         });
         const json = await res.json();
@@ -95,15 +96,16 @@
         listHome = [];
         listwebsiteagen = [];
         totalrecord = 0;
+        console.log(e.detail.tab_status)
         setTimeout(function () {
-            initHome();
+            initHome(e.detail.tab_status);
             initWebsiteAgen();
         }, 1000);
     };
     const handleLogout = (e) => {
         logout()
     }
-    initHome();
+    initHome("PROCESS");
     initWebsiteAgen();
 </script>
 {#if akses_page == true}

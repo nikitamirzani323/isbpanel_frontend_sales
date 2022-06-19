@@ -178,8 +178,15 @@
         }
         
     }
+    let tab_status = "PROCESS"
+    let tab_process = "tab-active"
+    let tab_maintenance = ""
+    let panel_process = true
+    let panel_maintenance = false
     const RefreshHalaman = () => {
-        dispatch("handleRefreshData", "call");
+        dispatch("handleRefreshData", {
+			tab_status
+		});
     };
     const NewData = () => {
         
@@ -208,7 +215,28 @@
         iduseragen_field = ""
         deposit_field = 0
     }
+
     
+    const changeTab = (e) => {
+        tab_status = e;
+        switch(e){
+            case "PROCESS":
+                RefreshHalaman()
+                tab_process = "tab-active"
+                tab_maintenance = ""
+                panel_process = true
+                panel_maintenance = false
+                break;
+            case "FOLLOWUP":
+                RefreshHalaman()
+                tab_process = ""
+                tab_maintenance = "tab-active"
+                panel_process = false
+                panel_maintenance = true
+                
+                break;
+        }
+    };
     $: {
         if (searchHome) {
             filterHome = listHome.filter(
@@ -241,9 +269,14 @@
     panel_total="{totalrecord}">
     <slot:template slot="panel_body">
         <div class="tabs tabs-boxed">
-            <a class="tab tab-active">PROCESS</a> 
-            <a class="tab">MAINTENANCE</a> 
+            <a on:click={() => {
+                changeTab("PROCESS");
+            }} class="tab {tab_process}">PROCESS</a> 
+            <a on:click={() => {
+                changeTab("FOLLOWUP");
+            }} class="tab {tab_maintenance}">MAINTENANCE</a> 
         </div>
+        {#if panel_process}
         <table class="table table-compact w-full mt-4">
             <thead class="sticky top-0">
                 <tr>
@@ -290,6 +323,52 @@
                 </tbody>
             {/if}
         </table>
+        {/if}
+        {#if panel_maintenance}
+        <table class="table table-compact w-full mt-4">
+            <thead class="sticky top-0">
+                <tr>
+                    <th width="7%" class="bg-[#475289] {font_size} text-white text-left">PHONE</th>
+                    <th width="7%" class="bg-[#475289] {font_size} text-white text-left">WHATSAPP</th>
+                    <th width="*" class="bg-[#475289] {font_size} text-white text-left">NAMA</th>
+                    <th width="1%" class="bg-[#475289] {font_size} text-white text-center"></th>
+                </tr>
+            </thead>
+            {#if filterHome != ""}
+                <tbody class="select-none">
+                    {#each filterHome as rec}
+                    <tr>
+                        <td class="{font_size} align-top text-center">
+                            <a class="text-blue-600 underline" href="tel:{rec.home_phone}">
+                                {rec.home_phonealias}
+                            </a>
+                        </td>
+                        <td class="{font_size} align-top text-left">
+                            <a class="text-blue-600 underline" href="https://wa.me/{rec.home_phone}" target="_blank">
+                                WHATSAPP
+                            </a>
+                        </td>
+                        <td class="{font_size} align-top text-left">{rec.home_name}</td>
+                        <td class="{font_size} align-top text-left">
+                            <span
+                                on:click={() => {
+                                    statusCRM("VALID",rec.home_idcrmsales,rec.home_idusersales,rec.home_phone,rec.home_name,rec.home_phonealias);
+                                }} class="bg-[#ebfbee] text-[#6ec07b] text-center rounded-md p-1 px-2 cursor-pointer">VALID</span>
+                        </td>
+                    </tr>
+                    {/each}
+                </tbody>
+            {:else}
+                <tbody>
+                    <tr>
+                        <td colspan="10" class="text-center">
+                            <progress class="self-start progress progress-primary w-56"></progress>
+                        </td>
+                    </tr>
+                </tbody>
+            {/if}
+        </table>
+        {/if}
     </slot:template>
 </Panel>
 
