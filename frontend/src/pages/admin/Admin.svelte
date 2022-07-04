@@ -23,12 +23,12 @@
         const json = await res.json();
         if (json.status == 200) {
             record = json.record;
-            totalrecord = record.length;
             let no = 0
             let temp_phone = "";
             let temp_xxx = 0;
             let temp_alias = ""
             if (record != null) {
+                totalrecord = record.length;
                 for (var i = 0; i < record.length; i++) {
                     temp_phone = record[i]["crm_phone"];
                     temp_xxx = temp_phone.length - 5;
@@ -74,8 +74,8 @@
         const json = await res.json();
         if (json.status == 200) {
             record = json.record;
-            totalrecord = record.length;
             if (record != null) {
+                totalrecord = record.length;
                 for (var i = 0; i < record.length; i++) {
                     listwebsiteagen = [
                         ...listwebsiteagen,

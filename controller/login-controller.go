@@ -27,6 +27,11 @@ type response_loginhome struct {
 	Status  int    `json:"status"`
 	Message string `json:"message"`
 }
+type response_loginpassword struct {
+	Status  int         `json:"status"`
+	Message string      `json:"message"`
+	Record  interface{} `json:"record"`
+}
 
 func Login(c *fiber.Ctx) error {
 	type payload_login struct {
@@ -88,6 +93,67 @@ func Login(c *fiber.Ctx) error {
 			"token":   "",
 			"key":     "",
 			"message": result_err.Message,
+			"time":    time.Since(render_page).String(),
+		})
+	}
+
+}
+func Changepassword(c *fiber.Ctx) error {
+	type payload_login struct {
+		Password string `json:"password" `
+	}
+
+	client := new(payload_login)
+	if err := c.BodyParser(client); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"status":  fiber.StatusBadRequest,
+			"message": err.Error(),
+			"record":  nil,
+		})
+	}
+
+	render_page := time.Now()
+	bearToken := c.Get("Authorization")
+	token := strings.Split(bearToken, " ")
+	axios := resty.New()
+	resp, err := axios.R().
+		SetAuthToken(token[1]).
+		SetResult(response_loginpassword{}).
+		SetError(response_loginpassword{}).
+		SetHeader("Content-Type", "application/json").
+		SetBody(map[string]interface{}{
+			"password": client.Password,
+		}).
+		Post(config.GetPathAPI() + "api/changepassword")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	log.Println("Response Info:")
+	log.Println("  Error      :", err)
+	log.Println("  Status Code:", resp.StatusCode())
+	log.Println("  Status     :", resp.Status())
+	log.Println("  Proto      :", resp.Proto())
+	log.Println("  Time       :", resp.Time())
+	log.Println("  Received At:", resp.ReceivedAt())
+	log.Println("  Body       :\n", resp)
+	log.Println()
+	if resp.StatusCode() == 200 {
+		result := resp.Result().(*response_loginpassword)
+		c.Status(fiber.StatusOK)
+		return c.JSON(fiber.Map{
+			"status":  http.StatusOK,
+			"message": result.Message,
+			"record":  result.Record,
+			"time":    time.Since(render_page).String(),
+		})
+	} else {
+		result_error := resp.Error().(*response_loginpassword)
+		c.Status(result_error.Status)
+		return c.JSON(fiber.Map{
+			"status":  result_error.Status,
+			"message": result_error.Message,
+			"record":  nil,
 			"time":    time.Since(render_page).String(),
 		})
 	}
