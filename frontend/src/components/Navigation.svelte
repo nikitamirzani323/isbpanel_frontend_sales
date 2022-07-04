@@ -85,10 +85,12 @@
             
             </ul>
           </div>
-          <a class="btn btn-ghost normal-case text-xl" href="/">SALES</a>
+          
         </div>
         <div class="navbar-center hidden lg:flex">
-          
+          <a class="btn btn-ghost normal-case text-xl" href="/">
+            <img src="isbsales.png" width="70" alt="ISBSALES">
+          </a>
         </div>
         <div class="navbar-end">
           <span class="pr-5 font-semibold select-none">

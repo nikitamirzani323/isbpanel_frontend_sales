@@ -77,7 +77,9 @@
     <article class="bg-white shadow-lg p-5 mt-5 w-1/3">
         <div class="flex flex-col gap-4">
             <div class="space-y-4">
-                <h1 class="text-center text-2xl font-bold text-gray-500">LOGIN SALES</h1>
+                <center>
+                    <img src="isbsales.png" width="100" alt="ISBSALES">
+                </center>
             </div>
             <div class="relative form-control">
                 <Input_custom
