@@ -16,7 +16,7 @@
 
     let page = "CRM PROCESS";
     let sData = "New";
-    let isModal_Form_New = false
+    let isModal_Form_baba = false
     let isModalLoading = false
     let isModalNotif = false
     let loader_class = "hidden"
@@ -124,7 +124,7 @@
                 RefreshHalaman();
             }
             isModalLoading = false;
-            isModal_Form_New = false;
+            isModal_Form_baba = false;
         } else {
             alert(msg_error);
         }
@@ -138,10 +138,10 @@
         idcrmsales_field = parseInt(idcrmsales)
         nama_field = nama
         phonealias_field = phonealias
-        
+       
         if(e == "VALID"){
             isModalLoading = false;
-            isModal_Form_New = true;
+            isModal_Form_baba = true;
         }else{
             SaveTransaksi()
         }
@@ -373,9 +373,10 @@
 </Panel>
 
 
-<input type="checkbox" id="my-modal-formnew" class="modal-toggle" bind:checked={isModal_Form_New}>
+
+<input type="checkbox" id="my-modal-baba" class="modal-toggle" bind:checked={isModal_Form_baba}>
 <Modal_popup
-    modal_popup_id="my-modal-formnew"
+    modal_popup_id="my-modal-baba"
     modal_popup_title=""
     modal_popup_class="select-none max-w-full lg:max-w-xl overflow-hidden">
     <slot:template slot="modalpopup_body">
@@ -484,8 +485,6 @@
         
     </slot:template>
 </Modal_popup>
-
-
 
 <input type="checkbox" id="my-modal-notif" class="modal-toggle" bind:checked={isModalNotif}>
 <Modal_alert 
